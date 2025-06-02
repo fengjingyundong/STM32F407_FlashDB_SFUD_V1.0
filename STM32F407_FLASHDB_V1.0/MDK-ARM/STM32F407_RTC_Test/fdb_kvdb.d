@@ -1,0 +1,15 @@
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FLASHDB\src\fdb_kvdb.c
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FLASHDB\inc\flashdb.h
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+stm32f407_rtc_test\fdb_kvdb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FLASHDB\inc\fdb_cfg.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FAL\inc\fal.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FAL\inc\fal_cfg.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FAL\inc\fal_def.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FLASHDB\inc\fdb_def.h
+stm32f407_rtc_test\fdb_kvdb.o: ..\BSP\FLASHDB\inc\fdb_low_lvl.h

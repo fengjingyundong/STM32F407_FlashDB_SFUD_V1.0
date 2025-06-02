@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "sfud.h": "c",
+    "main.h": "c",
+    "gpio.h": "c"
+  }
+}
