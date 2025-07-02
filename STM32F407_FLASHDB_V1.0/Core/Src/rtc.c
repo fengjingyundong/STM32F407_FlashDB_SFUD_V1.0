@@ -59,14 +59,14 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
-  if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) != 0x5050)
+  if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) != 0x5051)
   {
   /* USER CODE END Check_RTC_BKUP */
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 23;
-  sTime.Minutes = 45;
+  sTime.Hours = 9;
+  sTime.Minutes = 20;
   sTime.Seconds = 0;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sTime.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -74,9 +74,9 @@ void MX_RTC_Init(void)
   {
     Error_Handler();
   }
-  sDate.WeekDay = RTC_WEEKDAY_SATURDAY;
-  sDate.Month = RTC_MONTH_MAY;
-  sDate.Date = 31;
+  sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
+  sDate.Month = RTC_MONTH_JULY;
+  sDate.Date = 1;
   sDate.Year = 25;
 
   if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
@@ -85,7 +85,7 @@ void MX_RTC_Init(void)
   }
   /* USER CODE BEGIN RTC_Init 2 */
 
-    HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0, 0x5050); /* 写入后背电池标记 */
+    HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0, 0x5051); /* 写入后背电池标记 */
   }
   /* USER CODE END RTC_Init 2 */
 

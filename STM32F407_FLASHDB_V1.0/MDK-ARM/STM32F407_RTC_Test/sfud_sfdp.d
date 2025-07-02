@@ -1,9 +1,0 @@
-stm32f407_rtc_test\sfud_sfdp.o: ..\BSP\SFUD\src\sfud_sfdp.c
-stm32f407_rtc_test\sfud_sfdp.o: ../BSP/SFUD/inc/sfud.h
-stm32f407_rtc_test\sfud_sfdp.o: ../BSP/SFUD/inc/sfud_def.h
-stm32f407_rtc_test\sfud_sfdp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-stm32f407_rtc_test\sfud_sfdp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-stm32f407_rtc_test\sfud_sfdp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-stm32f407_rtc_test\sfud_sfdp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-stm32f407_rtc_test\sfud_sfdp.o: ../BSP/SFUD/inc/sfud_cfg.h
-stm32f407_rtc_test\sfud_sfdp.o: ../BSP/SFUD/inc/sfud_flash_def.h

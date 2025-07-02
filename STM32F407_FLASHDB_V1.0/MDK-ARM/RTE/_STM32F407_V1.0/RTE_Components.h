@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'STM32F407_V1.0' 
- * Target:  'STM32F407_RTC_Test' 
+ * Target:  'STM32F407_V1.0' 
  */
 
 #ifndef RTE_COMPONENTS_H

@@ -4,6 +4,7 @@
 #include "main.h"
 #include "rtc.h"
 #include "time.h"
+#include "usart.h"
 
 static uint32_t boot_count = 0;
 static time_t boot_time[10] = {0, 1, 2, 3};
@@ -32,6 +33,27 @@ static void lock(fdb_db_t db)
 static void unlock(fdb_db_t db)
 {
         __enable_irq();
+}
+
+// 将 Unix 时间戳转换为年月日时分秒
+static void UnixToDateTime(fdb_time_t unix_time, RTC_DateTypeDef *date, RTC_TimeTypeDef *time)
+{
+        struct tm *timeinfo;
+        time_t rawtime = (time_t)unix_time;
+
+        // 转换为本地时间
+        timeinfo = localtime(&rawtime);
+
+        // 填充日期结构体
+        date->Year = timeinfo->tm_year - 100; // STM32 RTC 年份从 2000 年开始，tm_year 从 1900 年
+        date->Month = timeinfo->tm_mon + 1;   // tm_mon 从 0 开始，RTC Month 从 1 开始
+        date->Date = timeinfo->tm_mday;
+        date->WeekDay = timeinfo->tm_wday == 0 ? 7 : timeinfo->tm_wday; // 周日调整
+
+        // 填充时间结构体
+        time->Hours = timeinfo->tm_hour;
+        time->Minutes = timeinfo->tm_min;
+        time->Seconds = timeinfo->tm_sec;
 }
 
 static fdb_time_t get_time(void)
@@ -77,7 +99,8 @@ static fdb_time_t get_time(void)
 static void kvdb_basic_sample(fdb_kvdb_t kvdb)
 {
         struct fdb_blob blob;
-        int boot_count = 0;
+        // int boot_count = 0;
+        boot_count_t boot_count = {0, 0};
 
         FDB_INFO("==================== kvdb_basic_sample ====================\n");
 
@@ -87,7 +110,7 @@ static void kvdb_basic_sample(fdb_kvdb_t kvdb)
                 /* the blob.saved.len is more than 0 when get the value successful */
                 if (blob.saved.len > 0)
                 {
-                        FDB_INFO("get the 'boot_count' value is %d\n", boot_count);
+                        FDB_INFO("get the 'boot_count' name: %s ,value is %d\n", boot_count.str, boot_count.count1);
                 }
                 else
                 {
@@ -97,10 +120,17 @@ static void kvdb_basic_sample(fdb_kvdb_t kvdb)
 
         { /* CHANGE the KV value */
                 /* increase the boot count */
-                boot_count++;
+                boot_count.count1++;
+                // strncpy(boot_count.str, "Hello World !", sizeof(boot_count.str));
+                sprintf(boot_count.str, "Hello World !  %d ", boot_count.count1);
+                // boot_count.str[sizeof(boot_count.str) - 1] = '\0'; /* 确保字符串以 '\0' 结尾 */
+
                 /* change the "boot_count" KV's value */
                 fdb_kv_set_blob(kvdb, "boot_count", fdb_blob_make(&blob, &boot_count, sizeof(boot_count)));
-                FDB_INFO("set the 'boot_count' value to %d\n", boot_count);
+                FDB_INFO("set the 'boot_count' value to %d\n", boot_count.count1);
+
+                // fdb_kv_del(kvdb, "boot_count");
+                //  FDB_INFO("del 'boot_count' err!\n");
         }
 
         FDB_INFO("===========================================================\n");
@@ -268,9 +298,16 @@ static bool query_cb(fdb_tsl_t tsl, void *arg)
         struct fdb_blob blob;
         struct env_status status;
         fdb_tsdb_t db = arg;
+        RTC_DateTypeDef sDate = {0};
+        RTC_TimeTypeDef sTime = {0};
 
         fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, &status, sizeof(status))));
-        FDB_INFO("[query_cb] queried a TSL: time: %" __PRITS ", temp: %d, humi: %d\n", tsl->time, status.temp, status.humi);
+        UnixToDateTime(tsl->time, &sDate, &sTime);
+        // printf("RTC: 20%02d/%02d/%02d  %02d:%02d:%02d\r\n",
+        //        sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
+        // FDB_INFO("[query_cb] queried a TSL: time: %" __PRITS ", temp: %d, humi: %d\n", tsl->time, status.temp, status.humi);
+        FDB_INFO("[query_cb] queried a TSL: 20%02d/%02d/%02d %02d:%02d:%02d, temp: %d, humi: %d\n",
+                 sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds, status.temp, status.humi);
 
         return false;
 }
@@ -280,9 +317,14 @@ static bool query_by_time_cb(fdb_tsl_t tsl, void *arg)
         struct fdb_blob blob;
         struct env_status status;
         fdb_tsdb_t db = arg;
+        RTC_DateTypeDef sDate = {0};
+        RTC_TimeTypeDef sTime = {0};
 
         fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, &status, sizeof(status))));
-        FDB_INFO("[query_by_time_cb] queried a TSL: time: %" __PRITS ", temp: %d, humi: %d\n", tsl->time, status.temp, status.humi);
+        UnixToDateTime(tsl->time, &sDate, &sTime);
+        // FDB_INFO("[query_by_time_cb] queried a TSL: time: %" __PRITS ", temp: %d, humi: %d\n", tsl->time, status.temp, status.humi);
+        FDB_INFO("[query_by_time_cb] queried a TSL: 20%02d/%02d/%02d %02d:%02d:%02d, temp: %d, humi: %d\n",
+                 sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds, status.temp, status.humi);
 
         return false;
 }
@@ -290,8 +332,15 @@ static bool query_by_time_cb(fdb_tsl_t tsl, void *arg)
 static bool set_status_cb(fdb_tsl_t tsl, void *arg)
 {
         fdb_tsdb_t db = arg;
+        RTC_DateTypeDef sDate = {0};
+        RTC_TimeTypeDef sTime = {0};
 
-        FDB_INFO("set the TSL (time %" __PRITS ") status from %d to %d\n", tsl->time, tsl->status, FDB_TSL_USER_STATUS1);
+        UnixToDateTime(tsl->time, &sDate, &sTime);
+
+        // FDB_INFO("set the TSL (time %" __PRITS ") status from %d to %d\n", tsl->time, tsl->status, FDB_TSL_USER_STATUS1);
+        FDB_INFO("set the TSL (20%02d/%02d/%02d %02d:%02d:%02d) status from %d to %d\n",
+                 sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds, tsl->status, FDB_TSL_USER_STATUS1);
+
         fdb_tsl_set_status(db, tsl, FDB_TSL_USER_STATUS1);
 
         return false;
@@ -309,8 +358,8 @@ int flashdb_app_Start(void)
                 default_kv.kvs = default_kv_table;
                 default_kv.num = sizeof(default_kv_table) / sizeof(default_kv_table[0]);
                 /* set the lock and unlock function if you want */
-                fdb_kvdb_control(&kvdb, FDB_KVDB_CTRL_SET_LOCK, (void *)lock);
-                fdb_kvdb_control(&kvdb, FDB_KVDB_CTRL_SET_UNLOCK, (void *)unlock);
+                fdb_kvdb_control(&kvdb, FDB_KVDB_CTRL_SET_LOCK, (void *)lock);     /**< 设置加锁函数 */
+                fdb_kvdb_control(&kvdb, FDB_KVDB_CTRL_SET_UNLOCK, (void *)unlock); /**< 设置解锁函数 */
                 /* Key-Value database initialization
                  *
                  *       &kvdb: database object
